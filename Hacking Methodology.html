@@ -1,0 +1,1752 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Haggas | دليل أدوات اختبار الاختراق</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #0a0e17;
+  --bg-secondary: #111827;
+  --bg-card: #1a1f2e;
+  --bg-hover: #232a3d;
+  --accent: #00ff9d;
+  --accent-2: #00d4ff;
+  --accent-3: #ff0055;
+  --text-primary: #e8ecf1;
+  --text-secondary: #8b95a8;
+  --border: #2a3142;
+  --code-bg: #0d1117;
+  --gradient: linear-gradient(135deg, #00ff9d 0%, #00d4ff 100%);
+  --gradient-2: linear-gradient(135deg, #ff0055 0%, #ff6b00 100%);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Cairo', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.7;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Matrix Rain Background */
+#matrix-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+/* Glow Effects */
+.glow-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 0;
+}
+.orb-1 {
+  width: 500px;
+  height: 500px;
+  background: var(--accent);
+  top: -200px;
+  right: -200px;
+  animation: float 8s ease-in-out infinite;
+}
+.orb-2 {
+  width: 400px;
+  height: 400px;
+  background: var(--accent-2);
+  bottom: -150px;
+  left: -150px;
+  animation: float 10s ease-in-out infinite reverse;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-30px, 30px); }
+}
+
+/* Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Header / Hero */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 60px 24px;
+  position: relative;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  background: rgba(0, 255, 157, 0.1);
+  border: 1px solid rgba(0, 255, 157, 0.3);
+  border-radius: 50px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 32px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.hero-badge::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--accent);
+  animation: blink 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.hero h1 {
+  font-size: clamp(2rem, 6vw, 4.5rem);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 24px;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.hero p {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  color: var(--text-secondary);
+  max-width: 700px;
+  margin-bottom: 40px;
+  animation: fadeInUp 0.8s ease-out 0.2s backwards;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+  justify-content: center;
+  animation: fadeInUp 0.8s ease-out 0.4s backwards;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 900;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.stat-label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Warning Banner */
+.warning-banner {
+  background: linear-gradient(135deg, rgba(255, 0, 85, 0.15), rgba(255, 107, 0, 0.1));
+  border: 1px solid rgba(255, 0, 85, 0.3);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin: 40px auto;
+  max-width: 900px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  animation: fadeInUp 0.8s ease-out 0.6s backwards;
+}
+
+.warning-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.warning-banner strong {
+  color: #ff6b6b;
+  display: block;
+  margin-bottom: 6px;
+  font-size: 1.05rem;
+}
+
+.warning-banner p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Section */
+.section {
+  padding: 80px 0;
+  position: relative;
+  z-index: 1;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.section-title {
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-weight: 800;
+  margin-bottom: 16px;
+  position: relative;
+  display: inline-block;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
+  background: var(--gradient);
+  border-radius: 2px;
+}
+
+.section-subtitle {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  max-width: 600px;
+  margin: 24px auto 0;
+}
+
+/* Search Bar */
+.search-wrapper {
+  max-width: 600px;
+  margin: 0 auto 50px;
+  position: relative;
+}
+
+.search-input {
+  width: 100%;
+  padding: 16px 24px 16px 56px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  color: var(--text-primary);
+  font-family: 'Cairo', sans-serif;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(0, 255, 157, 0.1);
+}
+
+.search-icon {
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  pointer-events: none;
+}
+
+/* Tools Grid */
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 24px;
+}
+
+.tool-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  animation: fadeInUp 0.6s ease-out backwards;
+}
+
+.tool-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.4s ease;
+}
+
+.tool-card:hover::before {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.tool-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(0, 255, 157, 0.4);
+  box-shadow: 0 20px 60px rgba(0, 255, 157, 0.15);
+}
+
+.tool-header {
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.tool-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, rgba(0, 255, 157, 0.15), rgba(0, 212, 255, 0.1));
+  border: 1px solid rgba(0, 255, 157, 0.2);
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.tool-title-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.tool-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--text-primary);
+}
+
+.tool-tag {
+  display: inline-block;
+  padding: 2px 10px;
+  background: rgba(0, 212, 255, 0.1);
+  color: var(--accent-2);
+  font-size: 0.72rem;
+  border-radius: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.tool-toggle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  font-size: 1.2rem;
+}
+
+.tool-card.open .tool-toggle {
+  transform: rotate(180deg);
+  background: var(--accent);
+  color: var(--bg-primary);
+  border-color: var(--accent);
+}
+
+.tool-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tool-card.open .tool-body {
+  max-height: 2000px;
+}
+
+.tool-body-inner {
+  padding: 0 24px 24px;
+}
+
+.tool-description {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: rgba(0, 212, 255, 0.04);
+  border-right: 3px solid var(--accent-2);
+  border-radius: 8px;
+  line-height: 1.8;
+}
+
+.tool-description strong {
+  color: var(--accent);
+}
+
+/* Code Block */
+.code-block {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  font-family: 'JetBrains Mono', monospace;
+  direction: ltr;
+  text-align: left;
+}
+
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid var(--border);
+}
+
+.code-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.code-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.code-dot:nth-child(1) { background: #ff5f57; }
+.code-dot:nth-child(2) { background: #febc2e; }
+.code-dot:nth-child(3) { background: #28c840; }
+
+.code-lang {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  letter-spacing: 1px;
+}
+
+.copy-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.copy-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.copy-btn.copied {
+  background: var(--accent);
+  color: var(--bg-primary);
+  border-color: var(--accent);
+}
+
+.code-content {
+  padding: 16px;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.8;
+  color: #e6edf3;
+  white-space: pre;
+}
+
+.code-content::-webkit-scrollbar {
+  height: 8px;
+}
+.code-content::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+.code-content::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+.code-content::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+.code-content .cmd {
+  color: #79c0ff;
+}
+
+/* Method Section */
+.method-timeline {
+  position: relative;
+  padding-right: 40px;
+}
+
+.method-timeline::before {
+  content: '';
+  position: absolute;
+  right: 15px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--accent), var(--accent-2), transparent);
+}
+
+.method-step {
+  position: relative;
+  margin-bottom: 32px;
+  animation: fadeInUp 0.6s ease-out backwards;
+}
+
+.method-step::before {
+  content: '';
+  position: absolute;
+  right: -32px;
+  top: 28px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg-primary);
+  border: 3px solid var(--accent);
+  box-shadow: 0 0 20px rgba(0, 255, 157, 0.5);
+  z-index: 2;
+}
+
+.method-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--gradient);
+  color: var(--bg-primary);
+  font-weight: 900;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  margin-left: 12px;
+}
+
+/* Footer */
+.footer {
+  padding: 40px 24px;
+  text-align: center;
+  border-top: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  position: relative;
+  z-index: 1;
+}
+
+.footer .heart {
+  color: var(--accent-3);
+}
+
+/* Scroll to top */
+.scroll-top {
+  position: fixed;
+  bottom: 32px;
+  left: 32px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--gradient);
+  border: none;
+  color: var(--bg-primary);
+  font-size: 1.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 100;
+  box-shadow: 0 8px 24px rgba(0, 255, 157, 0.3);
+}
+
+.scroll-top.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.scroll-top:hover {
+  transform: translateY(-4px) scale(1.1);
+}
+
+/* Progress Bar */
+.progress-bar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient);
+  z-index: 1000;
+  transition: width 0.1s linear;
+  box-shadow: 0 0 10px var(--accent);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero-stats {
+    gap: 24px;
+  }
+  .stat-number {
+    font-size: 2rem;
+  }
+  .tools-grid {
+    grid-template-columns: 1fr;
+  }
+  .method-timeline {
+    padding-right: 30px;
+  }
+  .method-step::before {
+    right: -25px;
+    width: 14px;
+    height: 14px;
+  }
+  .scroll-top {
+    bottom: 20px;
+    left: 20px;
+  }
+}
+
+/* Loading Animation */
+.loader {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(0, 255, 157, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--accent);
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+</style>
+</head>
+<body>
+
+<canvas id="matrix-bg"></canvas>
+<div class="glow-orb orb-1"></div>
+<div class="glow-orb orb-2"></div>
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- ==================== HERO ==================== -->
+<section class="hero">
+  <div class="hero-badge">
+    <span>Cybersecurity Toolkit</span>
+  </div>
+  <h1>دليل أدوات اختبار الاختراق<br>HAGGAS</h1>
+  <p>مجموعة شاملة من الأدوات والمنهجيات الاحترافية لاختبار اختراق تطبيقات الويب، مع شرح تعريفي لكل أداة وأوامر التثبيت والاستخدام.</p>
+  
+  <div class="hero-stats">
+    <div class="stat-item">
+      <div class="stat-number" data-target="16">0</div>
+      <div class="stat-label">أداة احترافية</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" data-target="11">0</div>
+      <div class="stat-label">خطوة منهجية</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" data-target="100">0</div>
+      <div class="stat-label">% عملي</div>
+    </div>
+  </div>
+
+  <div class="warning-banner">
+    <div class="warning-icon">⚠️</div>
+    <div>
+      <strong>تحذير قانوني</strong>
+      <p>هذه المعلومات لأغراض تعليمية واختبار الاختراق المصرح به فقط. استخدام هذه الأدوات ضد أي نظام بدون إذن كتابي مسبق يُعد جريمة إلكترونية يُعاقب عليها القانون.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== TOOLS SECTION ==================== -->
+<section class="section" id="tools">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">🛠️ الأدوات (Tools)</h2>
+      <p class="section-subtitle">انقر على أي أداة لعرض شرحها وأوامر التثبيت الخاصة بها</p>
+    </div>
+
+    <div class="search-wrapper">
+      <span class="search-icon">🔍</span>
+      <input type="text" class="search-input" id="searchInput" placeholder="ابحث عن أداة...">
+    </div>
+
+    <div class="tools-grid" id="toolsGrid">
+
+      <!-- Python3 -->
+      <div class="tool-card" data-name="python3">
+        <div class="tool-header">
+          <div class="tool-icon">Py</div>
+          <div class="tool-title-group">
+            <div class="tool-name">Python3</div>
+            <span class="tool-tag">Language</span>
+          </div>
+          <div class="tool-toggle">▾</div>
+        </div>
+        <div class="tool-body">
+          <div class="tool-body-inner">
+            <div class="tool-description">
+              <strong>التعريف:</strong> لغة برمجة مفتوحة المصدر عالية المستوى، تُعتبر حجر الأساس لتشغيل العديد من أدوات اختبار الاختراق المكتوبة بلغة Python (مثل Arjun، Waymore، Sublist3r، Dirsearch). توفر مكتبات ضخمة تسهّل التعامل مع الشبكات والويب.
+            </div>
+            <div class="code-block">
+              <div class="code-header">
+                <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                <span class="code-lang">BASH</span>
+                <button class="copy-btn">📋 نسخ</button>
+              </div>
+              <div class="code-content">sudo apt-get update -y
+sudo apt-get dist-upgrade -y
+sudo apt install -y python3
+sudo apt install -y python3-pip
+sudo apt install python3.12-venv
+python3 --version
+pip3 --version</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Golang -->
+      <div class="tool-card" data-name="golang go">
+        <div class="tool-header">
+          <div class="tool-icon">Go</div>
+          <div class="tool-title-group">
+            <div class="tool-name">Golang</div>
+            <span class="tool-tag">Language</span>
+          </div>
+          <div class="tool-toggle">▾</div>
+        </div>
+        <div class="tool-body">
+          <div class="tool-body-inner">
+            <div class="tool-description">
+              <strong>التعريف:</strong> لغة برمجة طورتها Google، تتميز بالسرعة والأداء العالي. تُستخدم لتثبيت أدوات أمنية حديثة مثل <strong>httpx</strong> و <strong>dalfox</strong>. تعتمد عليها العديد من أدوات ProjectDiscovery.
+            </div>
+            <div class="code-block">
+              <div class="code-header">
+                <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                <span class="code-lang">BASH</span>
+                <button class="copy-btn">📋 نسخ</button>
+              </div>
+              <div class="code-content">sudo apt-get update -y
+sudo apt-get dist-upgrade -y
+wget https://go.dev/dl/go1.23.3.linux-amd64.tar.gz
+rm -rf /usr/local/go
+sudo tar -C /usr/local -xzf go1.23.3.linux-amd64.tar.gz
+echo $SHELL
+echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.zshrc
+echo 'export PATH=$PATH:~/go/bin' >> ~/.zshrc
+source ~/.zshrc
+go version
+rm -rf go1.23.3.linux-amd64.tar.gz</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CMake -->
+      <div class="tool-card" data-name="cmake c-make">
+        <div class="tool-header">
+          <div class="tool-icon">Cm</div>
+          <div class="tool-title-group">
+            <div class="tool-name">C-Make</div>
+            <span class="tool-tag">Build System</span>
+          </div>
+          <div class="tool-toggle">▾</div>
+        </div>
+        <div class="tool-body">
+          <div class="tool-body-inner">
+            <div class="tool-description">
+              <strong>التعريف:</strong> نظام بناء (Build System) مفتوح المصدر يُستخدم لتجميع وبناء المشاريع المكتوبة بلغات مثل C و C++. ضروري لتثبيت أدوات مثل <strong>urldedupe</strong> التي تُبنى من المصدر.
+            </div>
+            <div class="code-block">
+              <div class="code-header">
+                <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                <span class="code-lang">BASH</span>
+                <button class="copy-btn">📋 نسخ</button>
+              </div>
+              <div class="code-content">sudo apt-get update -y
+sudo apt-get dist-upgrade -y
+sudo apt install cmake -y</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rust -->
+      <div class="tool-card" data-name="rust">
+        <div class="tool-header">
+          <div class="tool-icon">Rs</div>
+          <div class="tool-title-group">
+            <div class="tool-name">Rust</div>
+            <span class="tool-tag">Language</span>
+          </div>
+          <div class="tool-toggle">▾</div>
+        </div>
+        <div class="tool-body">
+          <div class="tool-body-inner">
+            <div class="tool-description">
+              <strong>التعريف:</strong> لغة برمجة حديثة تركز على الأمان والأداء العالي بدون جامع قمامة (Garbage Collector). تُستخدم لتثبيت أدوات سريعة مثل <strong>subExtreme</strong>.
+            </div>
+            <div class="code-block">
+              <div class="code-header">
+                <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                <span class="code-lang">BASH</span>
+                <button class="copy-btn">📋 نسخ</button>
+              </div>
+              <div class="code-content">sudo apt-get update -y
+sudo apt-get dist-upgrade -y
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source $HOME/.cargo/env
+rustc --version</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- urldedupe -->
+      <div class="tool-card" data-name="urldedupe">
+        <div class="tool-header">
+          <div class="tool-icon">ud</div>
+          <div class="tool-title-group">
+            <div class="tool-name">urldedupe</div>
+            <span class="tool-tag">Filtering</span>
+          </div>
+          <div class="tool-toggle">▾</div>
+        </div>
+        <div class="tool-body">
+          <div class="tool-body-inner">
+            <div class="tool-description">
+              <strong>التعريف:</strong> أداة خفيفة وسريعة مكتوبة بلغة C++، وظيفتها إزالة الروابط والمعاملات (Parameters) المكررة من ملفات ضخمة. توفر الوقت عند التعامل مع آلاف الروابط الناتجة من مرحلة جمع المعلومات.
+            </div>
+            <div class="code-block">
+              <div class="code-header">
+                <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                <span class="code-lang">BASH</span>
+                <button class="copy-btn">📋 نسخ</button>
+              </div>
+              <div class="code-content">git clone https://github.com/ameenmaali/urldedupe.git
+cd urldedupe
+cmake CMakeLists.txt
+make
+sudo cp urldedupe /usr/local/bin/
+cd ../
+urldedupe -h</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arjun -->
+      <div class="tool-card" data-name="arjun">
+        <div class="tool-header">
+          <div class="tool-icon">Aj</div>
+          <div class="tool-title-group">
+            <div class="tool-name">Arjun</div>
+            <span class="tool-tag">Parameter Discovery</span>
+          </div>
+          <div class="tool-toggle">▾</div>
+        </div>
+        <div class="tool-body">
+          <div class="tool-body-inner">
+            <div class="tool-description">
+              <strong>التعريف:</strong> أداة مكتوبة بلغة Python لاكتشاف <strong>المعاملات (Parameters) المخفية</strong> في تطبيقات الويب. تعتمد على قائمة ضخمة تضم أكثر من 25,000 اسم معامل شائع، وتدعم طرق GET و POST و JSON.
+            </div>
+            <div class="code-block">
+              <div class="code-header">
+                <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                <span class="code-lang">BASH</span>
+                <button class="copy-btn">📋 نسخ</button>
+              </div>
+              <div class="code-content">git clone https://github.com/s0md3v/Arjun.git
+python3 -m venv arjun-env
+source arjun-env/bin/activate
+cd Arjun
+pip3 install .
+sudo cp ~/arjun-env/bin/arjun /usr/local/bin/
+deactivate
+cd ../
+arjun -h</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Waymore -->
+      <div class="tool-card" data-name="waymore">
+        <div class="tool-header">
+          <div class="tool-icon">Wm</div>
+          <div class="tool-title-group">
+            <div class="tool-name">Waymore</div>
+            <span class="tool-tag">Passive Recon</span>
+          </div>
+          <div class="tool-toggle">▾</div>
+        </div>
+        <div class="tool-body">
+          <div class="tool-body-inner">
+            <div class="tool-description">
+              <strong>التعريف:</strong> أداة لجمع <strong>الروابط (URLs)</strong> الخاصة بهدف معين من مصادر متعددة (Wayback Machine, Common Crawl, AlienVault OTX, URLScan). ممتازة لجمع المعلومات بشكل سلبي (Passive Recon).
+            </div>
+            <div class="code-block">
+              <div class="code-header">
+                <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                <span class="code-lang">BASH</span>
+                <button class="copy-btn">📋 نسخ</button>
+              </div>
+              <div class="code-content">git clone https://github.com/xnl-h4ck3r/waymore.git
+python3 -m venv waymore-env
+source waymore-env/bin/activate
+cd waymore
+pip3 install .
+pip3 install -r requirements.txt
+sudo cp ~/waymore-env/bin/waymore /usr/local/bin/
+deactivate
+cd ../
+waymore -h</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sublist3r -->
+      <div class="tool-card" data-name="sublist3r">
+        <div class="tool-header">
+          <div class="tool-icon">S3</div>
+          <div class="tool-title-group">
+            <div class="tool-name">Sublist3r</div>
+            <span class="tool-tag">Subdomain Enum</span>
+          </div>
+          <div class="tool-toggle">▾</div>
+        </div>
+        <div class="tool-body">
+          <div class="tool-body-inner">
+            <div class="tool-description">
+              <strong>التعريف:</strong> أداة مكتوبة بلغة Python لتعداد <strong>النطاقات الفرعية (Subdomains)</strong> باستخدام محركات بحث متعددة ومصادر عامة مثل Google و Bing و VirusTotal و Netcraft. سريعة وسهلة الاستخدام.
+            </div>
+            <div class="code-block">
+              <div class="code-header">
+                <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                <span class="code-lang">BASH</span>
+                <button class="copy-btn">📋 نسخ</button>
+              </div>
+              <div class="code-content">git clone https://github.com/aboul3la/Sublist3r.git
+python3 -m venv sublist3r-env
+source sublist3r-env/bin/activate
+cd Sublist3r
+pip3 install .
+pip3 install -r requirements.txt
+sudo cp ~/sublist3r-env/bin/sublist3r /usr/local/bin/
+deactivate
+cd ../
+sublist3r -h</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dirsearch -->
+      <div class="tool-card" data-name="dirsearch">
+        <div class="tool-header">
+          <div class="tool-icon">Ds</div>
+          <div class="tool-title-group">
+            <div class="tool-name">Dirsearch</div>
+            <span class="tool-tag">Directory Bruteforce</span>
+          </div>
+          <div class="tool-toggle">▾</div>
+        </div>
+        <div class="tool-body">
+          <div class="tool-body-inner">
+            <div class="tool-description">
+              <strong>التعريف:</strong> أداة قوية مكتوبة بلغة Python لاكتشاف <strong>الملفات والمجلدات المخفية</strong> على خوادم الويب. تحتوي على قوائم كلمات مدمجة، وتدعم الامتدادات المتعددة، والوكلاء العشوائيين، والتمرير عبر Proxy مثل Burp Suite.
+            </div>
+            <div class="code-block">
+              <div class="code-header">
+                <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                <span class="code-lang">BASH</span>
+                <button class="copy-btn">📋 نسخ</button>
+              </div>
+              <div class="code-content">git clone https://github.com/maurosoria/dirsearch.git --depth 1
+python3 -m venv dirsearch-env
+source dirsearch-env/bin/activate
+cd dirsearch
+pip3 install .
+pip3 install -r requirements.txt
+sudo cp ~/dirsearch-env/bin/dirsearch /usr/local/bin/
+deactivate
+cd ../
+dirsearch -h</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- subExtreme -->
+      <div class="tool-card" data-name="subextreme">
+        <div class="tool-header">
+          <div class="tool-icon">sE</div>
+          <div class="tool-title-group">
+            <div class="tool-name">subExtreme</div>
+            <span class="tool-tag">Subdomain Enum</span>
+          </div>
+          <div class="tool-toggle">▾</div>
+        </div>
+        <div class="tool-body">
+          <div class="tool-body-inner">
+            <div class="tool-description">
+              <strong>التعريف:</strong> أداة مكتوبة بلغة Rust لتعداد <strong>النطاقات الفرعية</strong> بسرعة فائقة. تعتمد على قوائم كلمات ضخمة وتدعم خيوطًا متعددة (Concurrency) لتسريع العملية.
+            </div>
+            <div class="code-block">
+              <div class="code-header">
+                <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                <span class="code-lang">BASH</span>
+                <button class="copy-btn">📋 نسخ</button>
+              </div>
+              <div class="code-content">sudo apt-get update -y
+sudo apt-get dist-upgrade -y
+sudo apt install pkg-config -y
+sudo apt install libssl-dev -y
+git clone https://github.com/ahmedhamdy0x/subextreme.git
+cd subextreme
+cargo build --release
+cargo build
+sudo cp target/release/subextreme /usr/local/bin/
+sudo chmod +x /usr/local/bin/subextreme
+subextreme -h
+cd ../</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Httpx -->
+      <div class="tool-card" data-name="httpx">
+        <div class="tool-header">
+          <div class="tool-icon">Hx</div>
+          <div class="tool-title-group">
+            <div class="tool-name">Httpx</div>
+            <span class="tool-tag">HTTP Toolkit</span>
+          </div>
+          <div class="tool-toggle">▾</div>
+        </div>
+        <div class="tool-body">
+          <div class="tool-body-inner">
+            <div class="tool-description">
+              <strong>التعريف:</strong> أداة من ProjectDiscovery مكتوبة بلغة Go، تُستخدم للتحقق من <strong>النطاقات الحية</strong> وجمع معلومات عنها (Status Code, Title, Tech Stack, TLS, CDN). سريعة جدًا وتدعم خيوطًا متعددة.
+            </div>
+            <div class="code-block">
+              <div class="code-header">
+                <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                <span class="code-lang">BASH</span>
+                <button class="copy-btn">📋 نسخ</button>
+              </div>
+              <div class="code-content">sudo rm -f /usr/bin/httpx && sudo apt remove httpx -y
+go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
+httpx -h</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Crawley -->
+      <div class="tool-card" data-name="crawley">
+        <div class="tool-header">
+          <div class="tool-icon">Cr</div>
+          <div class="tool-title-group">
+            <div class="tool-name">Crawley</div>
+            <span class="tool-tag">Web Crawler</span>
+          </div>
+          <div class="tool-toggle">▾</div>
+        </div>
+        <div class="tool-body">
+          <div class="tool-body-inner">
+            <div class="tool-description">
+              <strong>التعريف:</strong> أداة زحف (Crawling) سريعة مكتوبة بلغة Go، تكتشف الروابط والأخطاء والنماذج في الموقع بعمق. تدعم Headless Mode للتعامل مع المواقع الديناميكية. <strong>تحذير:</strong> تستهلك موارد CPU و RAM بشكل كبير.
+            </div>
+            <div class="code-block">
+              <div class="code-header">
+                <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                <span class="code-lang">BASH</span>
+                <button class="copy-btn">📋 نسخ</button>
+              </div>
+              <div class="code-content">mkdir crawley
+cd crawley
+wget https://github.com/s0rg/crawley/releases/download/v1.7.10/crawley_v1.7.10_linux_x86_64.tar.gz
+tar -xvzf crawley_v1.7.10_linux_x86_64.tar.gz
+sudo cp crawley /usr/local/bin/
+cd ../
+crawley -h</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PassURLs -->
+      <div class="tool-card" data-name="passurls">
+        <div class="tool-header">
+          <div class="tool-icon">PU</div>
+          <div class="tool-title-group">
+            <div class="tool-name">PassURLs</div>
+            <span class="tool-tag">Proxy Tool</span>
+          </div>
+          <div class="tool-toggle">▾</div>
+        </div>
+        <div class="tool-body">
+          <div class="tool-body-inner">
+            <div class="tool-description">
+              <strong>التعريف:</strong> أداة بسيطة لتمرير قوائم الروابط إلى <strong>Burp Suite Proxy</strong> بشكل آلي، مما يسمح بتسجيل الطلبات والاستجابات وتحليلها. مفيدة لدمج نتائج جمع المعلومات مع أدوات التحليل اليدوي.
+            </div>
+            <div class="code-block">
+              <div class="code-header">
+                <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                <span class="code-lang">BASH</span>
+                <button class="copy-btn">📋 نسخ</button>
+              </div>
+              <div class="code-content">git clone https://github.com/ahmedhamdy0x/passurls.git
+python3 -m venv passurls-env
+source passurls-env/bin/activate
+cd passurls
+pip3 install .
+pip3 install -r requirements.txt
+sudo cp ~/passurls-env/bin/passurls /usr/local/bin/
+deactivate
+cd ../
+passurls -h</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dalfox -->
+      <div class="tool-card" data-name="dalfox xss">
+        <div class="tool-header">
+          <div class="tool-icon">Dx</div>
+          <div class="tool-title-group">
+            <div class="tool-name">Dalfox</div>
+            <span class="tool-tag">XSS Scanner</span>
+          </div>
+          <div class="tool-toggle">▾</div>
+        </div>
+        <div class="tool-body">
+          <div class="tool-body-inner">
+            <div class="tool-description">
+              <strong>التعريف:</strong> أداة مكتوبة بلغة Go لفحص ثغرات <strong>XSS (Cross-Site Scripting)</strong> بشكل آلي. تدعم اكتشاف DOM XSS، وتجاوز جدران الحماية (WAF Evasion)، والتحقق من الثغرات. من أقوى أدوات XSS في مجال اختبار الاختراق.
+            </div>
+            <div class="code-block">
+              <div class="code-header">
+                <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                <span class="code-lang">BASH</span>
+                <button class="copy-btn">📋 نسخ</button>
+              </div>
+              <div class="code-content">go install github.com/hahwul/dalfox/v2@latest
+dalfox -h</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SecLists -->
+      <div class="tool-card" data-name="seclists wordlist">
+        <div class="tool-header">
+          <div class="tool-icon">SL</div>
+          <div class="tool-title-group">
+            <div class="tool-name">SecLists</div>
+            <span class="tool-tag">Wordlists</span>
+          </div>
+          <div class="tool-toggle">▾</div>
+        </div>
+        <div class="tool-body">
+          <div class="tool-body-inner">
+            <div class="tool-description">
+              <strong>التعريف:</strong> مجموعة ضخمة من <strong>قوائم الكلمات (Wordlists)</strong> التي يستخدمها مختبرو الاختراق في جميع مراحل العمل: أسماء المستخدمين، كلمات المرور، النطاقات الفرعية، أسماء الملفات، المعاملات، وغيرها.
+            </div>
+            <div class="code-block">
+              <div class="code-header">
+                <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                <span class="code-lang">BASH</span>
+                <button class="copy-btn">📋 نسخ</button>
+              </div>
+              <div class="code-content">git clone https://github.com/danielmiessler/SecLists.git</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Burp Cert -->
+      <div class="tool-card" data-name="burp cert certificate">
+        <div class="tool-header">
+          <div class="tool-icon">Bc</div>
+          <div class="tool-title-group">
+            <div class="tool-name">Burp Cert</div>
+            <span class="tool-tag">SSL Certificate</span>
+          </div>
+          <div class="tool-toggle">▾</div>
+        </div>
+        <div class="tool-body">
+          <div class="tool-body-inner">
+            <div class="tool-description">
+              <strong>التعريف:</strong> شهادة SSL الخاصة بـ <strong>Burp Suite</strong>، تُستخدم لاعتراض حركة المرور المشفرة (HTTPS). يجب تصديرها من Burp Suite بامتداد <code>.der</code>، ثم تحويلها وإضافتها لشهادات النظام.
+            </div>
+            <div class="code-block">
+              <div class="code-header">
+                <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                <span class="code-lang">BASH</span>
+                <button class="copy-btn">📋 نسخ</button>
+              </div>
+              <div class="code-content"># Export Cert From Burpsuite by '.der' Extension
+openssl x509 -inform DER -in ~/burp.der -out ~/burp-ca.crt
+sudo cp ~/burp-ca.crt /usr/local/share/ca-certificates/
+sudo update-ca-certificates</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ==================== METHOD SECTION ==================== -->
+<section class="section" id="method">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">🎯 منهجية اختبار تطبيقات الويب</h2>
+      <p class="section-subtitle">خطوات جمع المعلومات (Reconnaissance) بشكل عملي ومنظم</p>
+    </div>
+
+    <div class="method-timeline">
+
+      <div class="method-step">
+        <div class="tool-card open">
+          <div class="tool-header">
+            <div class="tool-icon"><span class="method-number">1</span></div>
+            <div class="tool-title-group">
+              <div class="tool-name">إنشاء مجلد الهدف</div>
+              <span class="tool-tag">Organization</span>
+            </div>
+            <div class="tool-toggle">▾</div>
+          </div>
+          <div class="tool-body">
+            <div class="tool-body-inner">
+              <div class="tool-description">
+                الخطوة الأولى في أي عملية اختبار اختراق هي <strong>تنظيم العمل</strong> في مجلدات منفصلة لكل هدف. هذا يمنع الخلط بين النتائج ويُسهّل العودة إليها لاحقًا.
+              </div>
+              <div class="code-block">
+                <div class="code-header">
+                  <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                  <span class="code-lang">BASH</span>
+                  <button class="copy-btn">📋 نسخ</button>
+                </div>
+                <div class="code-content">mkdir bugbounty
+cd bugbounty
+mkdir <target>
+cd <target></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="method-step">
+        <div class="tool-card">
+          <div class="tool-header">
+            <div class="tool-icon"><span class="method-number">2</span></div>
+            <div class="tool-title-group">
+              <div class="tool-name">تعداد النطاقات الفرعية</div>
+              <span class="tool-tag">Subdomain Enum</span>
+            </div>
+            <div class="tool-toggle">▾</div>
+          </div>
+          <div class="tool-body">
+            <div class="tool-body-inner">
+              <div class="tool-description">
+                عملية اكتشاف كل النطاقات الفرعية التابعة للهدف (مثل mail.example.com، dev.example.com). أساسية لأن النطاقات الفرعية غالبًا ما تحتوي على تطبيقات أقل حماية.
+              </div>
+              <div class="code-block">
+                <div class="code-header">
+                  <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                  <span class="code-lang">BASH</span>
+                  <button class="copy-btn">📋 نسخ</button>
+                </div>
+                <div class="code-content">sublist3r -d example.com -b -t 50 -v -o sublist3r.txt
+subextreme -w ~/SecLists/Discovery/DNS/n0kovo_subdomains.txt -d example.com -c 100 -o subextreme.txt
+cat sublist3r.txt subextreme.txt | urldedupe -s > subdomains.txt</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="method-step">
+        <div class="tool-card">
+          <div class="tool-header">
+            <div class="tool-icon"><span class="method-number">3</span></div>
+            <div class="tool-title-group">
+              <div class="tool-name">تصفية النطاقات الصالحة</div>
+              <span class="tool-tag">Filtering</span>
+            </div>
+            <div class="tool-toggle">▾</div>
+          </div>
+          <div class="tool-body">
+            <div class="tool-body-inner">
+              <div class="tool-description">
+                استخدام <strong>httpx</strong> للتحقق من النطاقات الحية فقط، وتصفية الميتة. هذا يوفر الوقت في المراحل التالية.
+              </div>
+              <div class="code-block">
+                <div class="code-header">
+                  <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                  <span class="code-lang">BASH</span>
+                  <button class="copy-btn">📋 نسخ</button>
+                </div>
+                <div class="code-content">httpx -l subdomains.txt -o "valid-subs.txt" -t 60 -random-agent -mc 200</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="method-step">
+        <div class="tool-card">
+          <div class="tool-header">
+            <div class="tool-icon"><span class="method-number">4</span></div>
+            <div class="tool-title-group">
+              <div class="tool-name">جمع الروابط سلبياً</div>
+              <span class="tool-tag">Passive Recon</span>
+            </div>
+            <div class="tool-toggle">▾</div>
+          </div>
+          <div class="tool-body">
+            <div class="tool-body-inner">
+              <div class="tool-description">
+                استخدام <strong>Waymore</strong> لجمع الروابط المؤرشفة من مصادر مثل Wayback Machine و Common Crawl. لا يتم إرسال أي طلب مباشر للهدف.
+              </div>
+              <div class="code-block">
+                <div class="code-header">
+                  <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                  <span class="code-lang">BASH</span>
+                  <button class="copy-btn">📋 نسخ</button>
+                </div>
+                <div class="code-content">cat valid-subs.txt | waymore -mode B -oU waymoreUrls.txt -p 5 -mc 200</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="method-step">
+        <div class="tool-card">
+          <div class="tool-header">
+            <div class="tool-icon"><span class="method-number">5</span></div>
+            <div class="tool-title-group">
+              <div class="tool-name">تصفية الروابط الفريدة</div>
+              <span class="tool-tag">Filtering</span>
+            </div>
+            <div class="tool-toggle">▾</div>
+          </div>
+          <div class="tool-body">
+            <div class="tool-body-inner">
+              <div class="tool-description">
+                إزالة الروابط المكررة لتقليل حجم البيانات قبل التحليل باستخدام <strong>urldedupe</strong>.
+              </div>
+              <div class="code-block">
+                <div class="code-header">
+                  <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                  <span class="code-lang">BASH</span>
+                  <button class="copy-btn">📋 نسخ</button>
+                </div>
+                <div class="code-content">cat waymoreUrls.txt | wc
+cat waymoreUrls.txt | urldedupe -s > uniq-urls.txt
+cat uniq-urls.txt | wc</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="method-step">
+        <div class="tool-card">
+          <div class="tool-header">
+            <div class="tool-icon"><span class="method-number">6</span></div>
+            <div class="tool-title-group">
+              <div class="tool-name">تمرير الروابط إلى Burp</div>
+              <span class="tool-tag">Proxy</span>
+            </div>
+            <div class="tool-toggle">▾</div>
+          </div>
+          <div class="tool-body">
+            <div class="tool-body-inner">
+              <div class="tool-description">
+                إرسال الروابط المجمعة إلى <strong>Burp Suite</strong> لتسجيلها وتحليلها يدويًا باستخدام أداة PassURLs.
+              </div>
+              <div class="code-block">
+                <div class="code-header">
+                  <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                  <span class="code-lang">BASH</span>
+                  <button class="copy-btn">📋 نسخ</button>
+                </div>
+                <div class="code-content">passurls -p 127.0.0.1:8080 -l uniq-urls.txt</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="method-step">
+        <div class="tool-card">
+          <div class="tool-header">
+            <div class="tool-icon"><span class="method-number">7</span></div>
+            <div class="tool-title-group">
+              <div class="tool-name">اكتشاف الملفات والمجلدات المخفية 🔎</div>
+              <span class="tool-tag">Dirsearch</span>
+            </div>
+            <div class="tool-toggle">▾</div>
+          </div>
+          <div class="tool-body">
+            <div class="tool-body-inner">
+              <div class="tool-description">
+                استخدام <strong>Dirsearch</strong> مع قائمة كلمات ضخمة واكتشاف امتدادات متعددة (php, bak, sql, zip...) لاكتشاف ملفات حساسة قد تكون منشورة بالخطأ.
+              </div>
+              <div class="code-block">
+                <div class="code-header">
+                  <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                  <span class="code-lang">BASH</span>
+                  <button class="copy-btn">📋 نسخ</button>
+                </div>
+                <div class="code-content">dirsearch -u https://target.com/ -e 'conf,config,bak,backup,smp,old,db,sql,asp,aspx,py,rb,php,bhp,cache,cgi,csv,html,inc,jar,js,json,jsp,lock,log,rar,sql.gz,sql.zip,tar,tar.bz2,txt,wadl,zip,xml,swp,x~,asp~,py~,rb~,php~,bkp,jsp~,rar,gz,sql~,swp~,wdl,env,ini' --full-url --delay=10 --timeout=30 -p 127.0.0.1:8080 --random-agent -t 100 -w ~/SecLists/Discovery/Web-Content/combined_words.txt -o hidden-files.txt</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="method-step">
+        <div class="tool-card">
+          <div class="tool-header">
+            <div class="tool-icon"><span class="method-number">8</span></div>
+            <div class="tool-title-group">
+              <div class="tool-name">الزحف العميق بـ Crawley 🤪</div>
+              <span class="tool-tag">Warning ⚠️</span>
+            </div>
+            <div class="tool-toggle">▾</div>
+          </div>
+          <div class="tool-body">
+            <div class="tool-body-inner">
+              <div class="tool-description">
+                زحف عميق للموقع باستخدام <strong>Crawley</strong> مع تمرير كل الحركة عبر Burp Suite، ومحاكاة المتصفح (Headless). <strong>تحذير:</strong> يستهلك موارد كبيرة.
+              </div>
+              <div class="code-block">
+                <div class="code-header">
+                  <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                  <span class="code-lang">BASH</span>
+                  <button class="copy-btn">📋 نسخ</button>
+                </div>
+                <div class="code-content">export http_proxy="http://127.0.0.1:8080"
+export https_proxy="http://127.0.0.1:8080"
+export ALL_PROXY="http://127.0.0.1:8080"
+crawley -skip-ssl -headless -delay 10ms -depth -1 -all -timeout 30s -user-agent "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36" -dirs show https://target.com/ | tee crawley1.txt</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="method-step">
+        <div class="tool-card">
+          <div class="tool-header">
+            <div class="tool-icon"><span class="method-number">9</span></div>
+            <div class="tool-title-group">
+              <div class="tool-name">استخراج المعاملات</div>
+              <span class="tool-tag">Extraction</span>
+            </div>
+            <div class="tool-toggle">▾</div>
+          </div>
+          <div class="tool-body">
+            <div class="tool-body-inner">
+              <div class="tool-description">
+                نسخ جميع الروابط من Burp Suite إلى ملف، ثم استخراج الروابط التي تحتوي على <strong>معاملات</strong> باستخدام grep، ثم تصفيتها بـ urldedupe.
+              </div>
+              <div class="code-block">
+                <div class="code-header">
+                  <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                  <span class="code-lang">BASH</span>
+                  <button class="copy-btn">📋 نسخ</button>
+                </div>
+                <div class="code-content">nano burp-results.txt
+grep -E '\?.*=' burp-results.txt > burp-params.txt
+cat burp-params.txt | urldedupe -s > parameters.txt</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="method-step">
+        <div class="tool-card">
+          <div class="tool-header">
+            <div class="tool-icon"><span class="method-number">10</span></div>
+            <div class="tool-title-group">
+              <div class="tool-name">اكتشاف المعاملات المخفية 🔎</div>
+              <span class="tool-tag">Arjun</span>
+            </div>
+            <div class="tool-toggle">▾</div>
+          </div>
+          <div class="tool-body">
+            <div class="tool-body-inner">
+              <div class="tool-description">
+                استخدام <strong>Arjun</strong> على الملفات المكتشفة وعلى نتائج Burp لاكتشاف معاملات إضافية غير موثقة في الكود لكنها مدعومة من السيرفر.
+              </div>
+              <div class="code-block">
+                <div class="code-header">
+                  <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                  <span class="code-lang">BASH</span>
+                  <button class="copy-btn">📋 نسخ</button>
+                </div>
+                <div class="code-content">arjun -i hidden-files.txt -t 10 -c 300 -T 30 -d 10 -oB 127.0.0.1:8080 -m POST -oT hidden-params1.txt
+arjun -i burp-results.txt -t 10 -c 300 -T 30 -d 10 -oB 127.0.0.1:8080 -m POST -oT hidden-params2.txt</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="method-step">
+        <div class="tool-card">
+          <div class="tool-header">
+            <div class="tool-icon"><span class="method-number">11</span></div>
+            <div class="tool-title-group">
+              <div class="tool-name">فحص ثغرات XSS بـ Dalfox 🕷</div>
+              <span class="tool-tag">XSS Scanner</span>
+            </div>
+            <div class="tool-toggle">▾</div>
+          </div>
+          <div class="tool-body">
+            <div class="tool-body-inner">
+              <div class="tool-description">
+                تمرير كل المعاملات المكتشفة إلى <strong>Dalfox</strong> لفحص ثغرات XSS مع تجاوز WAF، واستخدام Burp كـ Proxy، وحقن Payload متقدم يعتمد على atob لتشفير السكربت.
+              </div>
+              <div class="code-block">
+                <div class="code-header">
+                  <div class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></div>
+                  <span class="code-lang">BASH</span>
+                  <button class="copy-btn">📋 نسخ</button>
+                </div>
+                <div class="code-content">dalfox file parameters.txt --waf-evasion --user-agent 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36' --timeout 30 --proxy 'http://127.0.0.1:8080' -o dalfox.txt --deep-domxss</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer class="footer">
+  <p>صُنع بـ <span class="heart">❤</span> لأغراض تعليمية —   Haggas</p>
+  <p style="margin-top: 8px; font-size: 0.8rem;">استخدم هذه الأدوات بمسؤولية وأخلاقية فقط</p>
+</footer>
+
+<button class="scroll-top" id="scrollTop">↑</button>
+
+<script>
+// ==================== Matrix Rain ====================
+const canvas = document.getElementById('matrix-bg');
+const ctx = canvas.getContext('2d');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノABCDEF';
+const fontSize = 14;
+const columns = canvas.width / fontSize;
+const drops = Array(Math.floor(columns)).fill(1);
+
+function drawMatrix() {
+  ctx.fillStyle = 'rgba(10, 14, 23, 0.05)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#00ff9d';
+  ctx.font = fontSize + 'px monospace';
+  
+  for (let i = 0; i < drops.length; i++) {
+    const text = chars[Math.floor(Math.random() * chars.length)];
+    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+      drops[i] = 0;
+    }
+    drops[i]++;
+  }
+}
+setInterval(drawMatrix, 50);
+
+window.addEventListener('resize', () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+
+// ==================== Tool Cards Toggle ====================
+document.querySelectorAll('.tool-header').forEach(header => {
+  header.addEventListener('click', () => {
+    const card = header.closest('.tool-card');
+    card.classList.toggle('open');
+  });
+});
+
+// ==================== Copy Buttons ====================
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const codeBlock = btn.closest('.code-block');
+    const code = codeBlock.querySelector('.code-content').innerText;
+    
+    navigator.clipboard.writeText(code).then(() => {
+      btn.classList.add('copied');
+      btn.innerHTML = '✓ تم النسخ';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = '📋 نسخ';
+      }, 2000);
+    });
+  });
+});
+
+// ==================== Search ====================
+const searchInput = document.getElementById('searchInput');
+const toolCards = document.querySelectorAll('.tool-card');
+
+searchInput.addEventListener('input', (e) => {
+  const query = e.target.value.toLowerCase().trim();
+  toolCards.forEach(card => {
+    const name = card.dataset.name || '';
+    const text = card.innerText.toLowerCase();
+    if (name.includes(query) || text.includes(query)) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+});
+
+// ==================== Scroll Progress ====================
+const progressBar = document.getElementById('progressBar');
+window.addEventListener('scroll', () => {
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = (scrollTop / docHeight) * 100;
+  progressBar.style.width = progress + '%';
+});
+
+// ==================== Scroll To Top ====================
+const scrollTopBtn = document.getElementById('scrollTop');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 500) {
+    scrollTopBtn.classList.add('show');
+  } else {
+    scrollTopBtn.classList.remove('show');
+  }
+});
+scrollTopBtn.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// ==================== Counter Animation ====================
+const counters = document.querySelectorAll('.stat-number');
+const animateCounter = (el) => {
+  const target = +el.dataset.target;
+  const duration = 1500;
+  const step = target / (duration / 16);
+  let current = 0;
+  
+  const update = () => {
+    current += step;
+    if (current < target) {
+      el.textContent = Math.floor(current) + '+';
+      requestAnimationFrame(update);
+    } else {
+      el.textContent = target + '+';
+    }
+  };
+  update();
+};
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      animateCounter(entry.target);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.5 });
+
+counters.forEach(counter => observer.observe(counter));
+
+// ==================== Stagger Animation ====================
+document.querySelectorAll('.tool-card').forEach((card, index) => {
+  card.style.animationDelay = (index * 0.05) + 's';
+});
+</script>
+
+</body>
+</html>
